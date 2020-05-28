@@ -10,11 +10,24 @@ export default class Cart {
         return false
     }
 
+    // Не удалось использоавть без any
+    findInCart(id: number): any {
+        const sameItem = this._items.find((inCart) => inCart.id === id);
+        if(sameItem !== undefined) {
+            return sameItem
+        }
+    }
+
     add(item: Buyable): void {
         if(!this.checkInCart(item) && item.digital) {
             this._items.push(item);
             return 
         } if (item.gadget) {
+            const sameItem = this.findInCart(item.id);            
+            if (sameItem?.quantity) {
+                sameItem.quantity += 1;
+                return
+            }         
             this._items.push(item);
             return
         } else {
@@ -28,7 +41,14 @@ export default class Cart {
 
     cartSum(): number {
         let sum: number = 0;
-        this._items.forEach((item) => sum += item.price);
+        this._items.forEach((item) => {
+            const quantityInCart = item.quantity;
+            if (quantityInCart !== undefined) {
+                sum += (item.price * quantityInCart);
+                return
+            }
+            sum += item.price;
+        });
         return sum
     }
 
@@ -42,7 +62,19 @@ export default class Cart {
     }
 
     removeOneItem(id: number): void {
-        const index = this._items.findIndex((inCart) => inCart.id === id);
-        this._items.splice(index,1);
+        const itemToRemove = this.findInCart(id);
+        if(itemToRemove === undefined) {
+            throw new Error('No such item in cart');
+        }
+        if(itemToRemove.digital){
+            this.removeItem(itemToRemove.id)
+            return
+        }
+        if(itemToRemove.quantity !== undefined) {
+            itemToRemove.quantity -= 1;
+            if (itemToRemove.quantity === 0) {
+                this.removeItem(itemToRemove.id);
+            }
+        }
     }
 }
