@@ -73,7 +73,7 @@ test('Cart removeOne item', () => {
   expect(cart.items.length).toBe(4);
 });
 
-test('Cart removeOne item', () => {
+test('Cart add error', () => {
   const cart = new Cart();
   const testAdd = () => cart.add(new Book(1001, 'War and Piece', 'Leo Tolstoy', 2000, 1225, true));
   testAdd();
